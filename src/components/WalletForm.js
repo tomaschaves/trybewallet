@@ -30,7 +30,6 @@ class WalletForm extends Component {
   handleClick = () => {
     const { history, dispatch } = this.props;
     const { email } = this.state;
-    console.log(email);
     dispatch(login(email));
     history.push('/carteira');
   };
