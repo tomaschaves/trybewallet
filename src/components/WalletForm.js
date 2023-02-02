@@ -1,64 +1,100 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../redux/actions';
+import { saveCurrencies } from '../redux/actions';
 
 class WalletForm extends Component {
   state = {
-    email: '',
-    password: '',
-    isDisabled: true,
+    // id: 0,
+    // value: '',
+    // description: '',
+    // currency: 'USD',
+    // method: 'Dinheiro',
+    // category: 'Alimentação',
+    currencies: [],
   };
+
+  componentDidMount() {
+    this.fetchCurrencies();
+  }
 
   handleChange = ({ target: { name, value } }) => {
     this.setState({
       [name]: value,
-    }, () => this.handleInfos());
-  };
-
-  handleInfos = () => {
-    const { email, password } = this.state;
-    const minimumLength = 6;
-    const regexEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-    const passwordLength = password.length >= minimumLength;
-    const validateEmail = regexEmail.test(email);
-    this.setState({
-      isDisabled: !(passwordLength && validateEmail),
     });
   };
 
-  handleClick = () => {
-    const { history, dispatch } = this.props;
-    const { email } = this.state;
-    dispatch(login(email));
-    history.push('/carteira');
+  fetchCurrencies = async () => {
+    const fetchAPI = await fetch('https://economia.awesomeapi.com.br/json/all');
+    const fetchAPIJSON = await fetchAPI.json();
+    const filteredCurrencies = Object.keys(fetchAPIJSON)
+      .filter((element) => element !== 'USDT');
+    this.setState({
+      currencies: filteredCurrencies,
+    }, () => this.globalStateCurrencies());
+  };
+
+  globalStateCurrencies = () => {
+    const { dispatch } = this.props;
+    const { currencies } = this.state;
+    dispatch(saveCurrencies(currencies));
   };
 
   render() {
-    const { isDisabled } = this.state;
+    const { currencies } = this.props;
 
     return (
       <form>
-        Email:
+        Valor:
         <input
-          name="email"
-          data-testid="email-input"
+          name="value"
+          data-testid="value-input"
           type="text"
           onChange={ this.handleChange }
         />
-        Senha:
+        Descrição:
         <input
-          name="password"
-          data-testid="password-input"
-          type="password"
+          name="description"
+          data-testid="description-input"
+          type="text"
           onChange={ this.handleChange }
         />
+        <select
+          name="currency"
+          onChange={ this.handleChange }
+          data-testid="currency-input"
+        >
+          {currencies.map((element) => (
+            <option
+              key={ element }
+            >
+              { element }
+            </option>))}
+        </select>
+        <select
+          name="method"
+          data-testid="method-input"
+          onChange={ this.handleChange }
+        >
+          <option>Dinheiro</option>
+          <option>Cartão de crédito</option>
+          <option>Cartão de débito</option>
+        </select>
+        <select
+          data-testid="tag-input"
+          name="category"
+          onChange={ this.handleChange }
+        >
+          <option>Alimentação</option>
+          <option>Lazer</option>
+          <option>Trabalho</option>
+          <option>Transporte</option>
+          <option>Saúde</option>
+        </select>
         <button
           type="button"
-          disabled={ isDisabled }
-          onClick={ this.handleClick }
         >
-          Entrar
+          Adicionar despesa
         </button>
       </form>
     );
@@ -66,13 +102,10 @@ class WalletForm extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  email: state.email,
+  currencies: state.wallet.currencies,
 });
 
 WalletForm.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func,
-  }),
   dispatch: PropTypes.func,
 }.isRequired;
 
