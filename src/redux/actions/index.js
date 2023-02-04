@@ -2,6 +2,7 @@
 export const SAVE_EMAIL_LOGIN = 'SAVE_EMAIL_LOGIN';
 export const SAVE_VALUES = 'SAVE_VALUES';
 export const SAVE_EXPENSES = 'SAVE_EXPENSES';
+export const DELETE_EXPENSES = 'DELETE_EXPENSES';
 export const SAVE_EXCHANGES = 'SAVE_EXCHANGES';
 
 export const login = (payload) => ({
@@ -21,5 +22,10 @@ export const saveExchangeCurrencies = (payload) => ({
 
 export const saveExpenses = (payload) => ({
   type: 'SAVE_EXPENSES',
+  payload,
+});
+
+export const deleteExpenses = (payload) => ({
+  type: 'DELETE_EXPENSES',
   payload,
 });
